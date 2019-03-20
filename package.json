@@ -4,13 +4,30 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "node_modules/.bin/parcel watch src/graphics/*.html --out-dir graphics --public-url ./"
+    "watch-dashboard": "node_modules/.bin/parcel watch src/dashboard/*.html --no-hmr --no-autoinstall --out-dir dashboard --public-url ./",
+    "watch-graphics": "node_modules/.bin/parcel watch src/graphics/*.html --no-hmr --no-autoinstall --out-dir graphics --public-url ./"
   },
   "author": "",
   "license": "ISC",
   "browserslist": "last 2 chrome versions",
   "nodecg": {
     "compatibleRange": ">=0.9",
+    "dashboardPanels": [
+      {
+        "name": "Events",
+        "title": "Latest Channel Events",
+        "file": "events.html",
+        "headerColor": "#6441A4",
+        "width": 2
+      },
+      {
+        "name": "Goals",
+        "title": "Current Stream Goal",
+        "file": "goals.html",
+        "headerColor": "#6441A4",
+        "width": 3
+      }
+    ],
     "graphics": [
       {
         "file": "viewers.html",
@@ -19,6 +36,11 @@
       },
       {
         "file": "notifications.html",
+        "width": 1920,
+        "height": 1080
+      },
+      {
+        "file": "goals.html",
         "width": 1920,
         "height": 1080
       },
@@ -34,16 +56,24 @@
     "sass": "^1.17.2"
   },
   "dependencies": {
+    "@date-io/moment": "^1.1.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.15",
     "@fortawesome/free-brands-svg-icons": "^5.7.2",
     "@fortawesome/react-fontawesome": "^0.1.4",
+    "@material-ui/core": "^3.9.2",
+    "@material-ui/styles": "^3.0.0-alpha.10",
     "color-hash": "^1.0.3",
     "gsap": "^2.1.2",
+    "jss": "^9.8.7",
+    "material-ui": "^0.20.2",
+    "material-ui-pickers": "^2.2.4",
+    "moment": "^2.24.0",
     "pixi.js": "^5.0.0-rc.2",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-spring": "^8.0.13",
     "twitch-emoticons": "^2.1.1",
-    "use-nodecg": "^0.3.1-alpha.1"
+    "use-nodecg": "^0.3.1-alpha.1",
+    "webfontloader": "^1.6.28"
   }
 }

@@ -16,7 +16,7 @@ const oppositeHeight = (dist, degrees) => {
 };
 
 (() => {
-    const timeline = new TimelineLite();
+    const timeline = new TimelineLite({autoRemoveChildren: true});
     const app = new PIXI.Application({
         height,
         width,
@@ -107,8 +107,41 @@ const oppositeHeight = (dist, degrees) => {
         }, '-=7');
     };
 
-    nodecg.listenFor('channel.follower', 'nodecg-twitchie', follower => {
-        sendMessage('New Follower:', follower.user.display_name);
+    nodecg.listenFor('webhook.follow', 'nodecg-twitchie', follower => {
+        console.log('follower', follower);
+        sendMessage('New Follower:', follower.name);
     });
-    sendMessage('New Follower:', 'WWWWWWWWWWWWWWWWWWWW');
+
+    nodecg.listenFor('channel.subscription', 'nodecg-twitchie', sub => {
+        console.log('sub', sub);
+        if (sub) {
+            if (sub.resub) {
+                const mnText = sub.cumulativeMonths > 1 ? 'months' : 'month';
+                sendMessage('Welcome Back!', `${sub.username} (${sub.cumulativeMonths} ${mnText})`);
+            } else {
+                sendMessage('New Sub!', sub.username);
+            }
+        }
+    });
+
+    nodecg.listenFor('channel.hosted', 'nodecg-twitchie', host => {
+        console.log('hosted', host);
+    });
+
+    nodecg.listenFor('chat.cheer', 'nodecg-twitchie', cheer => {
+        console.log('cheer', cheer);
+    });
+
+    nodecg.listenFor('channel.raided', 'nodecg-twitchie', raid => {
+        console.log('raid', raid);
+    });
+
+    nodecg.listenFor('channel.subgift', 'nodecg-twitchie', gift => {
+        console.log('subgift', gift);
+    });
+
+    nodecg.listenFor('channel.giftpaidupgrade', 'nodecg-twitchie', upgrade => {
+        console.log('giftpaidupgrade', upgrade);
+    });
+    // sendMessage('New Follower:', 'WWWWWWWWWWWWWWWWWWWW');
 })();

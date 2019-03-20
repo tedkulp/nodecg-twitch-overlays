@@ -2,6 +2,5 @@ node_modules
 .cache
 .vscode
 /graphics
-/dashboards
-/extensions
-
+/dashboard
+/extension

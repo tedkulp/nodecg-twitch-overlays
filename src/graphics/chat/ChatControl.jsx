@@ -20,12 +20,35 @@ const initialState = {
     messages: [],
 };
 
+const generateDeletedLine = msg => {
+    return Object.assign(msg, {
+        contents: [<span key={`${msg.id}-del`} className="message-text">&lt;Message Deleted&gt;</span>],
+    });
+};
+
 const reducer = (state, action) => {
     switch(action.type) {
         case 'addMessage':
             return {
-                messages: [...takeRight(state.messages, 50), action.msg],
+                messages: [...takeRight(state.messages, 50), action.payload],
             };
+        case 'deleteMessageById':
+            return {
+                messages: state.messages.map(msg => {
+                    return msg.id === action.payload.id
+                        ? generateDeletedLine(msg) : msg;
+                }),
+            };
+        case 'deleteMessageByDisplayName':
+            return {
+                messages: state.messages.map(msg => {
+                    const msgName = _.get(msg, 'displayName', '').toLowerCase();
+                    const payloadName = _.get(action, 'payload.displayName', '').toLowerCase();
+                    return msg === payloadName ? generateDeletedLine(msg) : msg;
+                }),
+            };
+        case 'clearMessages':
+            return initialState;
         default:
             return state;
     }
@@ -47,6 +70,9 @@ const fetchEmotes = channel => {
         currentChannelName = channel;
         return fetcher.fetchBTTVEmotes(channel).then(() => {
             return fetcher.fetchFFZEmotes(channel);
+        }).catch(err => {
+            // console.error(err);
+            return Promise.resolve(); // No op... it's only emotes and they probably don't have any
         });
     } else {
         return Promise.resolve();
@@ -80,14 +106,43 @@ function ChatControl() {
                 }
                 return <span key={key}></span>;
             });
-            dispatch({type: 'addMessage', msg: {
-                contents: msgParts,
-                displayName,
-                id: data.message.id,
-                color: get(data, 'user.color') || colorHash.hex(displayName),
-            }});
+            return dispatch({
+                type: 'addMessage',
+                payload: {
+                    contents: msgParts,
+                    displayName,
+                    id: data.message.id,
+                    color: get(data, 'user.color') || colorHash.hex(displayName),
+                },
+            });
         });
     });
+
+    useListenForNS('chat.messagedeleted', 'nodecg-twitchie', data => {
+        dispatch({
+            type: 'deleteMessageById',
+            payload: {
+                id: data.messageId,
+            },
+        });
+    });
+
+    useListenForNS('chat.clear', 'nodecg-twitchie', data => {
+        dispatch({
+            type: 'clearMessages',
+        });
+    });
+
+    useListenForNS('chat.timeout', 'nodecg-twitchie', data => {
+        dispatch({
+            type: 'deleteMessageByDisplayName',
+            payload: {
+                displayName: data.user,
+            },
+        });
+    });
+
+    // console.log('messages', get(state, 'messages', []));
 
     return (
         <>

@@ -20,15 +20,15 @@ body {
 }
 
 .message {
-    font: 12pt 'Inconsolata';
-    // line-height: 22px;
+    font: 14pt 'Inconsolata';
+    line-height: 20px;
 
     span.message-display-name {
         font-weight: bold;
     }
 
     img.message-emote {
-        height: 11pt;
-        width: 11pt;
+        height: 20px;
+        margin-left: -5px;
     }
 }
