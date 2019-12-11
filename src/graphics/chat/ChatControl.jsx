@@ -20,6 +20,7 @@ const initialState = {
     messages: [],
 };
 
+const badges = NodeCG.Replicant('chat.badges', 'nodecg-twitchie');
 const generateDeletedLine = msg => {
     return Object.assign(msg, {
         contents: [<span key={`${msg.id}-del`} className="message-text">&lt;Message Deleted&gt;</span>],
@@ -79,6 +80,15 @@ const fetchEmotes = channel => {
     }
 };
 
+const resolveBadge = (key, val, imgKey) => {
+    const resolved = get(badges.value, `badge_sets.${key}.versions.${val}.image_url_1x`);
+    if (resolved) {
+        return <img className="chat-badge" key={imgKey} src={resolved} />;
+    } else {
+        return '';
+    }
+};
+
 function ChatControl() {
     const [state, dispatch] = useReducer(reducer, initialState);
     const bottomDivRef = useRef();
@@ -106,9 +116,17 @@ function ChatControl() {
                 }
                 return <span key={key}></span>;
             });
+
+            const messageId = get(data, 'message.id');
+            const msgBadges = get(data, 'user.badges', []);
+            const badgesToSend = Object.keys(msgBadges).map((badgeItemKey, idx) =>
+                resolveBadge(badgeItemKey, msgBadges[badgeItemKey], `${messageId}-badge-${idx}`)
+            );
+
             return dispatch({
                 type: 'addMessage',
                 payload: {
+                    badges: badgesToSend,
                     contents: msgParts,
                     displayName,
                     id: data.message.id,
@@ -148,6 +166,9 @@ function ChatControl() {
         <>
             {transitions.map(({ item, props, key }) =>
                 <animated.div className="message" key={key} style={props}>
+                    {(
+                        item.badges.map(b => b)
+                    )}
                     <span className="message-display-name" style={{color: item.color}}>{item.displayName}: </span>
                     {(
                         item.contents.map(i => i)

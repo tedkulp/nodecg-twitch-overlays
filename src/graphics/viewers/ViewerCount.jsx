@@ -1,13 +1,15 @@
 import React from "react";
 import { useTransition, config, animated } from 'react-spring'
 import { get } from 'lodash';
-import { useReplicantNS } from 'use-nodecg';
+import { useReplicant } from 'use-nodecg';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTwitch } from '@fortawesome/free-brands-svg-icons';
 
 export default function ViewerCount() {
-    const [streamInfo, _] = useReplicantNS('stream.info', 'nodecg-twitchie');
+    const [streamInfo, _] = useReplicant('stream.info', {}, {
+        namespace: 'nodecg-twitchie'
+    });
     const viewerCount = get(streamInfo, 'viewers', 0);
     const showDiv = viewerCount > 0;
 

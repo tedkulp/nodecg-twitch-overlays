@@ -1,10 +1,12 @@
 import React from "react";
 import { useTransition, config, animated } from 'react-spring';
 import { get, take } from 'lodash';
-import { useReplicantNS } from 'use-nodecg';
+import { useReplicant } from 'use-nodecg';
 
 export default function EventList() {
-    const [events, _] = useReplicantNS('events', 'nodecg-twitchie');
+    const [events, _] = useReplicant('events', [], {
+        namespace: 'nodecg-twitchie'
+    });
     const transitions = useTransition(
         (take(events, 25) || []),
         event => `${event.subject}-${event.timestamp}`, // calculate key

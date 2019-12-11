@@ -41,7 +41,7 @@ export default function EventList(props) {
                     <MenuItem value={'bits'}>Bits</MenuItem>
                     <MenuItem value={'followers'}>Followers</MenuItem>
                     <MenuItem value={'subscriptions'}>Subscriptions</MenuItem>
-                    {/* <MenuItem value={'tips'}>Tips</MenuItem> // Waiting on streamtips integration */}
+                    <MenuItem value={'donations'}>Donations</MenuItem>
                     <MenuItem value={'manual'}>Manual</MenuItem>
                 </Select>
             </FormControl>

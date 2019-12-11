@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import moment from 'moment';
 import WebFont from 'webfontloader';
+import { get } from 'lodash';
 // import { TweenMax, TimelineLite, Power0, Power2, PixiPlugin, _gsScope } from "gsap/all";
 
 // _gsScope.PIXI = PIXI;
@@ -64,6 +65,10 @@ const start = () => {
     const drawIt = percentage => {
         app.stage.removeChildren();
 
+        const formatCurrentValue = val => {
+            return goalType.value === 'donations' ? `$${Number(val).toFixed(2)}` : `${val}`;
+        };
+
         if (enabled.value === true) {
             const container = new PIXI.Container();
 
@@ -92,7 +97,7 @@ const start = () => {
 
             container.addChild(rect);
 
-            const stringToShow = `${currentValue.value}(${Math.round(percentage * 100 * 100) / 100}%)`
+            const stringToShow = `${formatCurrentValue(currentValue.value)}(${Math.round(percentage * 100 * 100) / 100}%)`
             const centerText = new PIXI.Text(stringToShow, centerTextStyle);
 
             centerText.x = (graphWidth / 2) - (centerText.width / 2) + margin;
@@ -100,13 +105,13 @@ const start = () => {
 
             container.addChild(centerText);
 
-            const startText = new PIXI.Text(`${startValue.value}`, bottomTextStyle);
+            const startText = new PIXI.Text(`${formatCurrentValue(startValue.value)}`, bottomTextStyle);
             startText.x = 2 + margin;
             startText.y = graphHeight + 2 + topOffset;
 
             container.addChild(startText);
 
-            const endText = new PIXI.Text(`${endValue.value}`, bottomTextStyle);
+            const endText = new PIXI.Text(`${formatCurrentValue(endValue.value)}`, bottomTextStyle);
             endText.x = graphWidth - endText.width - 2 + margin;
             endText.y = graphHeight + 2 + topOffset;
 
@@ -151,7 +156,7 @@ const start = () => {
             return clamp(0, 1, val);
         };
 
-        [title, currentValue, startValue, endValue, enabled, alignment, hasBackground].map(e => {
+        [goalType, title, currentValue, startValue, endValue, enabled, alignment, hasBackground, endDate].map(e => {
             e.on('change', (newVal, oldVal) => {
                 drawIt(getPercentage());
             });
@@ -172,9 +177,14 @@ const start = () => {
         });
 
         nodecg.listenFor('chat.cheer', 'nodecg-twitchie', cheer => {
-            // currentValue.value = ~~currentValue.value + 1;
             if (goalType.value === 'bits' && enabled.value === true) {
-                currentValue.value = ~~currentValue.value + get(cheer, 'cheer.bits', 0);
+                currentValue.value = ~~currentValue.value + ~~(get(cheer, 'cheer.bits', 0));
+            }
+        });
+
+        nodecg.listenFor('donation', 'nodecg-streamlabs', donation => {
+            if (goalType.value === 'donations' && enabled.value === true) {
+                currentValue.value = Number(currentValue.value) + Number(get(donation, 'amount.amount', 0));
             }
         });
 
