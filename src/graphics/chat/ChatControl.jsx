@@ -1,6 +1,6 @@
 import React, { useReducer, useRef, useEffect } from "react";
 import { get, takeRight } from 'lodash';
-import { useListenForNS } from 'use-nodecg';
+import { useListenFor } from 'use-nodecg';
 import { useTransition, animated } from 'react-spring';
 import ColorHash from 'color-hash';
 import { EmoteFetcher, EmoteParser } from 'twitch-emoticons';
@@ -28,7 +28,7 @@ const generateDeletedLine = msg => {
 };
 
 const reducer = (state, action) => {
-    switch(action.type) {
+    switch (action.type) {
         case 'addMessage':
             return {
                 messages: [...takeRight(state.messages, 50), action.payload],
@@ -103,14 +103,14 @@ function ChatControl() {
         leave: { transform: 'translate3d(0,0,0)', },
     });
 
-    useListenForNS('chat.chat', 'nodecg-twitchie', data => {
+    useListenFor('chat.chat', data => {
         fetchEmotes(data.channel.slice(1)).then(() => {
             const displayName = get(data, 'user.display-name', '');
             const msgParts = get(data, 'message.tokens', []).map((item, idx) => {
                 const key = `${item.id}-${idx}`;
                 if (item.type === 'text') {
                     const parsedText = parser.parse(item.content, 1);
-                    return <span key={key} className="message-text" dangerouslySetInnerHTML={{__html: parsedText}}></span>;
+                    return <span key={key} className="message-text" dangerouslySetInnerHTML={{ __html: parsedText }}></span>;
                 } else if (item.type === 'emote') {
                     return getImageForEmote(item.content, key);
                 }
@@ -134,31 +134,31 @@ function ChatControl() {
                 },
             });
         });
-    });
+    }, { bundle: 'nodecg-twitchie' });
 
-    useListenForNS('chat.messagedeleted', 'nodecg-twitchie', data => {
+    useListenFor('chat.messagedeleted', data => {
         dispatch({
             type: 'deleteMessageById',
             payload: {
                 id: data.messageId,
             },
         });
-    });
+    }, { bundle: 'nodecg-twitchie' });
 
-    useListenForNS('chat.clear', 'nodecg-twitchie', data => {
+    useListenFor('chat.clear', data => {
         dispatch({
             type: 'clearMessages',
         });
-    });
+    }, { bundle: 'nodecg-twitchie' });
 
-    useListenForNS('chat.timeout', 'nodecg-twitchie', data => {
+    useListenFor('chat.timeout', data => {
         dispatch({
             type: 'deleteMessageByDisplayName',
             payload: {
                 displayName: data.user,
             },
         });
-    });
+    }, { bundle: 'nodecg-twitchie' });
 
     // console.log('messages', get(state, 'messages', []));
 
@@ -169,7 +169,7 @@ function ChatControl() {
                     {(
                         item.badges.map(b => b)
                     )}
-                    <span className="message-display-name" style={{color: item.color}}>{item.displayName}: </span>
+                    <span className="message-display-name" style={{ color: item.color }}>{item.displayName}: </span>
                     {(
                         item.contents.map(i => i)
                     )}
